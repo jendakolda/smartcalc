@@ -109,6 +109,12 @@
 #             print('Invalid expression 2')
 
 
+from collections import deque
+
+
+
+
+
 class Calculator:
     variables = dict()
 
@@ -117,7 +123,9 @@ class Calculator:
         exp = exp.replace('+++', '+').replace('++', '+')
         exp = self.change_vars(exp)
         try:
-            return eval(exp)
+            postfixed = self.postfix(exp)
+            result = self.evaluate(postfixed)
+            return result
         except NameError:
             return 'Unknown variable'
         except Exception:
@@ -154,11 +162,57 @@ class Calculator:
         else:
             self.variables[var] = self.variables[value]
 
+    def evaluate(self, postfix):
+        s = []
+        for symbol in postfix:
+            try:
+                result = int(symbol)
+            except ValueError:
+                if symbol not in '+-*/':
+                    raise ValueError('text must contain only numbers and operators')
+                result = eval('%d %s %d' % (s.pop(), symbol, s.pop()))
+            s.append(result)
+        return s.pop()
+
+    def postfix(self, exp):
+        postfix = []
+        stack = []
+        infix = (list(exp.replace('(', ' ( ').replace(')', ' ) ').split()))
+        for i in infix:
+            if i.isnumeric():
+                postfix.append(i)
+            elif (not stack or stack[-1] == '(') and i in '+-/*':
+                stack.append(i)
+            elif i in '/*' and stack[-1] in '+-':
+                stack.append(i)
+            elif i in '+-' and stack[-1] in '+-*/':
+                while stack[-1] in '+-*/(':
+                    postfix.append(stack.pop())
+                    if not stack:
+                        break
+                stack.append(i)
+            elif i in '*/' and stack[-1] in '*/':
+                while stack[-1] in '*/(':
+                    postfix.append(stack.pop())
+                    if not stack:
+                        break
+                stack.append(i)
+            elif i == '(':
+                stack.append(i)
+            elif i == ')':
+                while stack[-1] != '(':
+                    postfix.append(stack.pop())
+                stack.pop()
+
+        for _ in stack:
+            postfix.append(stack.pop())
+        return postfix
+
     def main(self):
         while True:
             exp = input()
             if exp == '/help':
-                print('The program adds and substtracts numbers')
+                print('The program adds and substracts numbers')
             elif exp == '/exit':
                 print('Bye!')
                 break
