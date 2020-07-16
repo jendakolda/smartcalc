@@ -210,12 +210,9 @@ files:
   visible: true
   learner_created: true
 feedback_link: https://hyperskill.org/projects/74/stages/415/implement
-status: Failed
+status: Solved
 feedback:
-  message: "Wrong answer in test #1\n\nThe program cannot process addition and subtraction\
-    \ operations correctly.\n\nPlease find below the output of your program during\
-    \ this failed test.\nNote that the '>' character indicates the beginning of the\
-    \ input line.\n\n---\n\n> /help\nThe program adds and substracts numbers\n> \n\
-    > n = 32\n> 33 + 20 + 11 + 49 - 32 - 9 + 1 - 80 + 4\n-7"
-  time: Wed, 15 Jul 2020 13:42:34 UTC
+  message: Congratulations! Continue on <a href="https://hyperskill.org/projects/74/stages/415/implement">JetBrains
+    Academy</a>
+  time: Thu, 16 Jul 2020 09:20:42 UTC
 record: -1

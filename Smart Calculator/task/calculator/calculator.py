@@ -1,118 +1,66 @@
 # # Program Calculator: Jetbrains Hyperskill Hard project
 # # (c) JendaKolda 2020
-# # calculator function
-#
-#
-# def operation(x):
-#     input_line = list(x.lstrip('+').split())
-#     expr_check(input_line)
-#     operands = []
-#     operators = []
-#     # total = int(input_line[0])
-#
-#     for element in range(len(input_line)):
-#         if input_line[element].lstrip('-').isnumeric():
-#             operands.append(int(input_line[element]))
-#         elif input_line[element].lstrip('-').isalpha() and (input_line[element].lstrip('-') in calc_memory):
-#             # print(calc_memory[input_line[element]])
-#             operands.append(int(calc_memory[input_line[element]]))
-#         else:
-#             operators.append(add_or_sub(input_line[element]))
-#
-#     total = int(operands[0])
-#
-#     for element in range(len(operators)):
-#         if operators[element] == '+':
-#             total += operands[element + 1]
-#         elif operators[element] == '-':
-#             total -= operands[element + 1]
-#     return total
-#
-#
-# # function expr_check to confirm correct format of input
-# def expr_check(input_line):
-#     if len(input_line) % 2 == 0:
-#         print('Invalid expression 1')
-#
-#
-# # function add_or_sub to evaluate the operators
-# def add_or_sub(operator):
-#     if operator.count('-') % 2 == 0:
-#         return '+'
-#     if operator.count('-') % 2 == 1:
-#         return '-'
-#     return print('input an operator')
-#
-#
-# # function command for selection of commands
-# def command(message):
-#     if message == 'exit':
-#         print('Bye!')
-#         exit()
-#     elif message == 'help':
-#         print('The program calculates the sum of numbers')
-#     else:
-#         print('Unknown command')
-#
-#
-# calc_memory = {}
-#
-#
-# def memory_store(raw_input):
-#     if raw_input.count('=') != 1:
-#         print('Invalid assignment')
-#     else:
-#         inter_mem = list(raw_input.split('='))
-#         if inter_mem[1].strip().isalpha() and not (inter_mem[1].strip() in calc_memory):
-#             print('Unknown variable')
-#         elif (not inter_mem[0].strip().isalpha()) and (not inter_mem[1].strip().isalpha()):
-#             print('Invalid identifier')
-#         else:
-#             if inter_mem[1].strip().isalpha() and (inter_mem[1].strip() in calc_memory):
-#                 inter_dict = {inter_mem[0].strip(): calc_memory[inter_mem[1].strip()]}
-#                 calc_memory.update(inter_dict)
-#             elif inter_mem[1].strip().isalpha() and not (inter_mem[1].strip() in calc_memory):
-#                 print('Invalid assignment')
-#             elif not inter_mem[1].strip().isalpha() and not inter_mem[1].strip().isnumeric():
-#                 print('Invalid assignment')
-#             else:
-#                 inter_dict = {inter_mem[0].strip(): int(inter_mem[1].strip())}
-#                 calc_memory.update(inter_dict)
-#     return
-#
-#
-# def memory_read(raw_input):
-#     if not raw_input.isalpha():
-#         print('Invalid identifier')
-#     elif raw_input not in calc_memory:
-#         print('Unknown variable')
-#     else:
-#         print(calc_memory[raw_input])
-#     return
-#
-#
-# # program main body
-# while True:
-#     raw_input = input('')
-#     if raw_input.startswith('/'):
-#         command(raw_input.lstrip('/'))
-#     elif '=' in raw_input:
-#         memory_store(raw_input)
-#     elif raw_input.isalnum():
-#         memory_read(raw_input)
-#     elif not raw_input:
-#         continue
-#     else:
-#         try:
-#             print(operation(raw_input))
-#         except:
-#             print('Invalid expression 2')
+# # Program contains parts of opensource code which I have not coded myself
 
 
-from collections import deque
+class infix_to_postfix:
+    precedence = {'^': 5, '*': 4, '/': 4, '+': 3, '-': 3, '(': 2, ')': 1}
 
+    def __init__(self):
+        self.items = []
+        self.size = -1
 
+    def push(self, value):
+        self.items.append(value)
+        self.size += 1
 
+    def pop(self):
+        if self.isempty():
+            return 0
+        else:
+            self.size -= 1
+            return self.items.pop()
+
+    def isempty(self):
+        if self.size == -1:
+            return True
+        else:
+            return False
+
+    def seek(self):
+        if self.isempty():
+            return false
+        else:
+            return self.items[self.size]
+
+    def infixtopostfix(self, expr):
+        expr = (list(expr.replace('(', ' ( ').replace(')', ' ) ').split()))
+        postfix = []
+        for i in expr:
+            if len(expr) % 2 == 0:
+                print("Invalid expression")
+                return False
+            # elif self.isOperand(i):
+            elif i.isnumeric():
+                postfix.append(i)
+            elif i in '+-*/^':
+                while len(self.items) and self.precedence[i] <= self.precedence[self.seek()]:
+                    postfix.append(self.pop())
+                self.push(i)
+            elif i == '(':
+                self.push(i)
+            elif i == ')':
+                o = self.pop()
+                while o != '(':
+                    postfix.append(o)
+                    o = self.pop()
+            # end of for
+        while len(self.items):
+            if self.seek() == '(':
+                self.pop()
+            else:
+                postfix.append(self.pop())
+        return postfix
 
 
 class Calculator:
@@ -122,16 +70,24 @@ class Calculator:
         exp = exp.replace('---', '-').replace('--', '+')
         exp = exp.replace('+++', '+').replace('++', '+')
         exp = self.change_vars(exp)
+        if ('**' in exp) or ('//' in exp):
+            return 'Invalid expression'
+            pass
         try:
-            postfixed = self.postfix(exp)
+            s = infix_to_postfix()
+            postfixed = s.infixtopostfix(exp)
             result = self.evaluate(postfixed)
-            return result
-        except NameError:
-            return 'Unknown variable'
+            # print(result)
+            return int(result)
+        # except NameError:
+        #    return 'Unknown variable'
         except Exception:
             if exp.startswith('/'):
                 return 'Unknown command'
-            return 'Invalid Expression'
+            elif exp not in self.variables:
+                return 'Unknown variable'
+            else:
+                return 'Invalid Expression'
 
     def change_vars(self, exp):
         for var in self.variables:
@@ -162,51 +118,39 @@ class Calculator:
         else:
             self.variables[var] = self.variables[value]
 
+    # tady je funkce na vyhodnoceni postfix notace
     def evaluate(self, postfix):
-        s = []
-        for symbol in postfix:
-            try:
-                result = int(symbol)
-            except ValueError:
-                if symbol not in '+-*/':
-                    raise ValueError('text must contain only numbers and operators')
-                result = eval('%d %s %d' % (s.pop(), symbol, s.pop()))
-            s.append(result)
-        return s.pop()
-
-    def postfix(self, exp):
-        postfix = []
         stack = []
-        infix = (list(exp.replace('(', ' ( ').replace(')', ' ) ').split()))
-        for i in infix:
-            if i.isnumeric():
-                postfix.append(i)
-            elif (not stack or stack[-1] == '(') and i in '+-/*':
-                stack.append(i)
-            elif i in '/*' and stack[-1] in '+-':
-                stack.append(i)
-            elif i in '+-' and stack[-1] in '+-*/':
-                while stack[-1] in '+-*/(':
-                    postfix.append(stack.pop())
-                    if not stack:
-                        break
-                stack.append(i)
-            elif i in '*/' and stack[-1] in '*/':
-                while stack[-1] in '*/(':
-                    postfix.append(stack.pop())
-                    if not stack:
-                        break
-                stack.append(i)
-            elif i == '(':
-                stack.append(i)
-            elif i == ')':
-                while stack[-1] != '(':
-                    postfix.append(stack.pop())
-                stack.pop()
+        for token in postfix:
 
-        for _ in stack:
-            postfix.append(stack.pop())
-        return postfix
+            if token.strip() == '':
+                continue
+
+            elif token == "+":
+                stack.append(stack.pop() + stack.pop())
+
+            elif token == "-":
+                op2 = stack.pop()
+                stack.append(stack.pop() - op2)
+
+            elif token == '*':
+                stack.append(stack.pop() * stack.pop())
+
+            elif token == '/':
+                op2 = stack.pop()
+                if op2 != 0.0:
+                    stack.append(stack.pop() / op2)
+                else:
+                    raise ValueError("division by zero found!")
+            elif '**' in token:
+                print('Invalid expression')
+                break
+            elif token.isnumeric():
+                stack.append(float(token))
+
+            else:
+                raise ValueError("unknown token {0}".format(token))
+        return stack.pop()
 
     def main(self):
         while True:
